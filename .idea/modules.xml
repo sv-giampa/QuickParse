@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/QuickParse/QuickParse.iml" filepath="$PROJECT_DIR$/QuickParse/QuickParse.iml" />
+      <module fileurl="file://$PROJECT_DIR$/QuickParse-Examples/QuickParse-Examples.iml" filepath="$PROJECT_DIR$/QuickParse-Examples/QuickParse-Examples.iml" />
+    </modules>
+  </component>
+</project>

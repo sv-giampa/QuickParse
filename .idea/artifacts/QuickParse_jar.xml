@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="QuickParse:jar">
+    <output-path>$PROJECT_DIR$/artifacts/QuickParse</output-path>
+    <root id="archive" name="QuickParse.jar">
+      <element id="module-output" name="QuickParse" />
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/QuickParse/META-INF/MANIFEST.MF" />
+      </element>
+    </root>
+  </artifact>
+</component>
