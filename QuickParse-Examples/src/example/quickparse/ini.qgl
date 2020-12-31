@@ -1,0 +1,23 @@
+
+// ignore white-spaces everywhere
+ignore: /$
+
+// root
+ini -> sections
+
+// set of sections
+sections -> section sections
+sections -> :\n/$ sections
+sections -> /
+
+// a single section
+section -> :\[/$ section-name:[a-zA-Z0-9_\\-]+/$ :\]/$ :\n/$ pairs
+
+// a list of key-value pairs
+pairs -> pair :\n/$ pairs
+pairs -> :\n/$ pairs
+pairs -> pair
+pairs -> /
+
+// a single key-value pair
+pair -> key:[a-zA-Z0-9_\-]+/$ :\=/$ value:[^\n]*/$

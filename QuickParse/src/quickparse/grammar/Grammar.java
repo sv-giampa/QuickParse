@@ -122,7 +122,7 @@ public class Grammar implements Iterable<Rule> {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		for(Pattern pattern : ignoredPatterns)
-			sb.append("ignore ").append(pattern).append("/$").append('\n');
+			sb.append("ignore:").append(pattern).append("/$").append('\n');
 		for (List<Rule> ruleSet : rules.values())
 			for (Rule rule : ruleSet)
 				sb.append(rule).append('\n');

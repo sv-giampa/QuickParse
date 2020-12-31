@@ -79,6 +79,7 @@ public abstract class SyntaxTree {
 
     /**
      * Accepts a {@link SyntaxTreeVisitor} and uses it to visit this node and its eventually present children.
+     * @param <STV> the sub-type of {@link SyntaxTreeVisitor}
      * @param syntaxTreeVisitor the {@link SyntaxTreeVisitor visitor} to accept
      * @return the same {@link SyntaxTreeVisitor visitor} given as input
      */

@@ -17,6 +17,7 @@
 
 package example.quickparse;
 
+import quickparse.QGLCompiler;
 import quickparse.grammar.Grammar;
 import quickparse.grammar.Rule;
 import quickparse.parsing.RecursiveDescentParser;
@@ -32,23 +33,41 @@ import quickparse.parsing.exception.UnexpectedSymbolException;
 import quickparse.parsing.syntaxtree.TokenNode;
 import quickparse.semantics.interpreters.typed.TypedInterpreter;
 
+import java.io.IOException;
 import java.util.*;
 
 public class INIData {
 
-    private static final Grammar grammar = Grammar.create()
-            .ignorePatterns(" ") // ignore spaces only
-            .addRule(Rule.head("ini").produces("sections"))
-            .addRule(Rule.head("sections").produces("section", "sections"))
-            .addRule(Rule.head("sections").produces(":\\n", "sections"))
-            .addRule(Rule.head("sections").produces())
-            .addRule(Rule.head("section").produces(":\\[", "section-name:[a-zA-Z0-9_\\-]+", ":\\]", ":\\n", "pairs"))
-            .addRule(Rule.head("pairs").produces("pair", ":\\n", "pairs"))
-            .addRule(Rule.head("pairs").produces(":\\n", "pairs"))
-            .addRule(Rule.head("pairs").produces("pair"))
-            .addRule(Rule.head("pairs").produces())
-            .addRule(Rule.head("pair").produces("key:[a-zA-Z0-9_\\-]+", ":\\=", "value:[^\\n]*"))
-            .build();
+//    private static final Grammar grammar = Grammar.create()
+//            .ignorePatterns(" ") // ignore spaces only
+//            .addRule(Rule.head("ini").produces("sections"))
+//            .addRule(Rule.head("sections").produces("section", "sections"))
+//            .addRule(Rule.head("sections").produces(":\\n", "sections"))
+//            .addRule(Rule.head("sections").produces())
+//            .addRule(Rule.head("section").produces(":\\[", "section-name:[a-zA-Z0-9_\\-]+", ":\\]", ":\\n", "pairs"))
+//            .addRule(Rule.head("pairs").produces("pair", ":\\n", "pairs"))
+//            .addRule(Rule.head("pairs").produces(":\\n", "pairs"))
+//            .addRule(Rule.head("pairs").produces("pair"))
+//            .addRule(Rule.head("pairs").produces())
+//            .addRule(Rule.head("pair").produces("key:[a-zA-Z0-9_\\-]+", ":\\=", "value:[^\\n]*"))
+//            .build();
+
+    private static Grammar grammar;
+
+    static {
+        try {
+
+            grammar = QGLCompiler.fromResource(
+                    ClassLoader.getSystemClassLoader(),
+                    "example/quickparse/ini.qgl");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ExpectedSymbolsException e) {
+            e.printStackTrace();
+        } catch (UnexpectedSymbolException e) {
+            e.printStackTrace();
+        }
+    }
 
     private static final TypedInterpreter<Map<String,Map<String,String>>> interpreter = new TypedInterpreter(grammar){
 
@@ -88,6 +107,7 @@ public class INIData {
     private static Parser parser = new RecursiveDescentParser(grammar);
 
     public static Map<String, Map<String, String>> compile(CharSequence source) throws UnexpectedSymbolException, ExpectedSymbolsException, SemanticsException {
+        System.out.println("INIGrammar:\n\t" + grammar.toString().replaceAll("\n", "\n\t"));
         return interpreter.analyze(parser.parse(source));
     }
 
@@ -116,7 +136,8 @@ public class INIData {
     }
 
     public static void main(String[] args) throws UnexpectedSymbolException, ExpectedSymbolsException, SemanticsException {
-        String source = "[section1]\n" +
+        String source =
+                "[section1]\n" +
                 "k1=v1\n" +
                 "\n" +
                 "k2=v2\n" +

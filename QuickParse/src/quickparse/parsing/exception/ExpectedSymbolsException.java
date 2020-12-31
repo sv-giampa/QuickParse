@@ -29,13 +29,28 @@ public class ExpectedSymbolsException extends Exception {
 	public final CharSequence source;
 	public final int position;
 
+	private static String getMessage(CharSequence source, int position, Set<TokenSymbol> expectedSymbols){
+		int row=1, col;
+		int lastBr = 0;
+		for(int i=0; i<position; i++){
+			if(source.charAt(i) == '\n') {
+				lastBr = i;
+				row++;
+			}
+		}
+		col = position-lastBr;
+
+		return String.format("At position %d (line: %d, column: %d): Expected symbols: %s, but '%s' was found", position,
+				row, col, expectedSymbols, escapeChar(source, position));
+	}
+
 	private static String escapeChar(CharSequence source, int position){
 		if(position >= source.length())
 			return "<end-of-source>";
 		char ch = source.charAt(position);
 		switch(ch){
 			case ' ':
-				return "<white space>";
+				return "<white-space>";
 			case '\n':
 				return "<new-line>";
 			case '\r':
@@ -43,13 +58,12 @@ public class ExpectedSymbolsException extends Exception {
 			case '\t':
 				return "<tab>";
 			default:
-				return "'" + ch + "'";
+				return "" + ch;
 		}
 	}
 
 	public ExpectedSymbolsException(CharSequence source, int position, Set<TokenSymbol> expectedSymbols) {
-		super("At position " + position + ": Expected symbols " + expectedSymbols +
-				", but " + escapeChar(source, position) + " was found");
+		super(getMessage(source,position,expectedSymbols));
 		this.expectedSymbols = Collections.unmodifiableSet(expectedSymbols);
 		this.source = source;
 		this.position = position;

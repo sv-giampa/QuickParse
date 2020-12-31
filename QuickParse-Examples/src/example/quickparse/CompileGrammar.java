@@ -27,18 +27,15 @@ public class CompileGrammar {
 
     public static void main(String[] args) throws SemanticsException, ExpectedSymbolsException, UnexpectedSymbolException {
         String source =
-                "ignore \\n/$\n" +
-                "ignore \\n/$\n" + // doubled pattern, it will be ignored
-                "ignore  /$\n" + // white space pattern
-                "A -> a:a c/$ B :c/$ \n  \n"+
-
+                "   \n \n\n  \n  \t   \n"+
+                "\tignore:\\n/$   \t\n \n" +
+                "ignore:\\n/$\n" + // doubled pattern, it will be ignored
+                " ignore: /$\n" + // white space pattern
+                "A -> a-:a c/$ B :c/$ \n  \n"+
                 "// this is a comment line\n" +
-
-                "B = b:b/$ B\n" +
-
+                "B = b:b/$ B :\\w/$\n" +
                 "/* this is\n" +
                 "a comment block */\n" +
-
                 "B = /\n";
 
         System.out.println("Compiling from source string...");

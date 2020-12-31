@@ -43,7 +43,7 @@ public class Expressions {
 
             // level 2 of operator precedence: multiplication, division
             .addRule(Rule.head("level2").produces("level2-tail"))
-            .addRule(Rule.head("level2-tail").produces("level-final", "level2-oparator:[\\*\\/]", "level2"))
+            .addRule(Rule.head("level2-tail").produces("level-final", "level2-operator:[\\*\\/]", "level2"))
             .addRule(Rule.head("level2-tail").produces("level-final"))
 
             // final level of operator precedence

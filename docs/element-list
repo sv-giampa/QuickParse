@@ -1,0 +1,13 @@
+quickparse
+quickparse.charsequence
+quickparse.grammar
+quickparse.grammar.symbol
+quickparse.parsing
+quickparse.parsing.exception
+quickparse.parsing.syntaxtree
+quickparse.semantics
+quickparse.semantics.interpreters
+quickparse.semantics.interpreters.exception
+quickparse.semantics.interpreters.typed
+quickparse.semantics.interpreters.typed.annotation
+quickparse.semantics.interpreters.typed.exception

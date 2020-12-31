@@ -33,7 +33,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.NoSuchFileException;
 
 /**
  * This class implements a compiler for grammars. It allows to build {@link Grammar} objects
@@ -44,7 +43,7 @@ import java.nio.file.NoSuchFileException;
  * A QGL source string is composed by two macro blocks:
  * <ul>
  *     <li>Ignored Patterns: a list of Regular Expressions that represents text pattern to be ignored
- *     everywere in the source of the built grammar (e.g., white-spaces or comments); See {@link Grammar}
+ *     everywhere in the source of the built grammar (e.g., white-spaces or comments); See {@link Grammar}
  *     for more details.</li>
  *     <li>Grammar Rules: the list of grammar rules; each rule is encoded by specifying a construct that is the
  *     rule head, followed by '->' or '=' symbols, and by the list of symbols that produce the head construct.
@@ -53,9 +52,9 @@ import java.nio.file.NoSuchFileException;
  *
  * <h2>Ignored Patterns</h2>
  * Each ignored pattern must be specified on a single line, before any grammar rule, in the following way:<br>
- * <pre><code>ignore pattern/$</code></pre>
+ * <pre><code>ignore:pattern/$</code></pre>
  * where 'pattern' is the Regular Expression as supported by the Java Language, and '/$' is the termination
- * character sequence.
+ * character sequence. Note that the pattern starts just after the ':' separator.
  *
  * <h2>Grammar Rules</h2>
  * Each grammar rule must be specified on a single line in one of the following ways:<br>
@@ -75,7 +74,6 @@ public class QGLCompiler {
 
 	private static Grammar qglGrammar = Grammar.create()
 			.ignorePatterns(
-					" ", 			// white space
 					"//[^\\n]*",	// comment line
 					"(?s)(/\\*.*?\\*/)"	// comment block
 			)
@@ -84,24 +82,26 @@ public class QGLCompiler {
 
 			.addRule(Rule.head("ignore_patterns").produces("ignore_pattern", ":\\n", "ignore_patterns"))
 			.addRule(Rule.head("ignore_patterns").produces("ignore_pattern"))
-			.addRule(Rule.head("ignore_patterns").produces(":\\n", "ignore_patterns"))
+			.addRule(Rule.head("ignore_patterns").produces(":( |\t)*\\n", "ignore_patterns"))
 			.addRule(Rule.head("ignore_patterns").produces())
-			.addRule(Rule.head("ignore_pattern").produces(":ignore", ": ", "ignored_pattern:.*?\\/\\$"))
+			.addRule(Rule.head("ignore_pattern").produces(":( |\t)*ignore\\:", "ignored_pattern:.*?\\/\\$", ":( |\t)*"))
 
-			.addRule(Rule.head("rules").produces("rule", ":\\n", "rules"))
+			.addRule(Rule.head("rules").produces("rule", ":( |\t)*\\n", "rules"))
 			.addRule(Rule.head("rules").produces("rule"))
-			.addRule(Rule.head("rules").produces(":\\n", "rules"))
+			.addRule(Rule.head("rules").produces(":( |\t)*\\n", "rules"))
 			.addRule(Rule.head("rules").produces())
 
-			.addRule(Rule.head("rule").produces("construct", ":\\=|\\-\\>", "rule_body"))
+			.addRule(Rule.head("rule").produces(":( |\t)*", "construct", ":( |\t)*(\\=|\\-\\>)", "rule_body"))
 			.addRule(Rule.head("rule_body").produces("rule_tail"))
-			.addRule(Rule.head("rule_body").produces(":/"))
-			.addRule(Rule.head("rule_tail").produces("symbol", "rule_tail"))
-			.addRule(Rule.head("rule_tail").produces("symbol"))
+			.addRule(Rule.head("rule_body").produces(":( |\t)*/"))
+			.addRule(Rule.head("rule_tail").produces(":( |\t)*", "symbol", "rule_tail"))
+			.addRule(Rule.head("rule_tail").produces(":( |\t)*", "symbol"))
 
 			.addRule(Rule.head("symbol").produces("token"))
 			.addRule(Rule.head("symbol").produces("construct"))
-			.addRule(Rule.head("token").produces("token_name:([a-zA-Z_][a-zA-Z0-9_\\-]*)?", ":\\:", "token_pattern:.*?\\/\\$"))
+			.addRule(Rule.head("token").produces("token_name:([a-zA-Z_][a-zA-Z0-9_\\-]*)", "token_pattern"))
+			.addRule(Rule.head("token").produces("token_pattern"))
+			.addRule(Rule.head("token_pattern").produces(":\\:", "token_pattern:.*?\\/\\$"))
 			.addRule(Rule.head("construct").produces("construct_name:[a-zA-Z_][a-zA-Z0-9_\\-]*"))
 			.build();
 
@@ -145,6 +145,9 @@ public class QGLCompiler {
 					break;
 				case "rule": // nullify the rule builder
 					ruleBuilder = null;
+					break;
+				case "token":
+					tokenName = ""; // default token name, when absent
 					break;
 			}
 		}
@@ -206,6 +209,7 @@ public class QGLCompiler {
 	 * @throws UnexpectedSymbolException if an unexpected symbol is found at the end of the source
 	 */
 	public static Grammar compile(CharSequence source) throws ExpectedSymbolsException, UnexpectedSymbolException {
+		//System.out.println("QGLGrammar:\n\t" + qglGrammar.toString().replaceAll("\n", "\n\t"));
 		return new RecursiveDescentParser(qglGrammar) 	// selects recursive descent strategy
 				.parse(source)							// do parsing
 				.accept(new QGLSyntaxTreeVisitor())		// do semantic analysis

@@ -36,7 +36,7 @@ import quickparse.parsing.exception.ExpectedSymbolsException;
 import quickparse.parsing.syntaxtree.ConstructNode;
 import quickparse.parsing.syntaxtree.SyntaxTree;
 import quickparse.grammar.symbol.TokenSymbol;
-import quickparse.parsing.exception.LeftRecursionException;
+import quickparse.parsing.exception.InfiniteLeftRecursionException;
 import quickparse.parsing.exception.UnexpectedSymbolException;
 import quickparse.parsing.syntaxtree.TokenNode;
 
@@ -67,7 +67,7 @@ public class RecursiveDescentParser implements Parser {
 		return false;
 	}
 
-	private void detectLeftRecursions() throws LeftRecursionException {
+	private void detectLeftRecursions() throws InfiniteLeftRecursionException {
 		Map<Symbol, Set<Symbol>> leftRec = new HashMap<>();
 		for (Rule rule : grammar)
 			if (rule.getSymbols().size() > 0) {
@@ -86,12 +86,12 @@ public class RecursiveDescentParser implements Parser {
 
 				if (first instanceof ConstructSymbol) {
 					if (pathExists(first, rule.getHead(), leftRec))
-						throw new LeftRecursionException(rule.getHead(), first);
+						throw new InfiniteLeftRecursionException(rule.getHead(), first);
 				}
 			}
 	}
 
-	public RecursiveDescentParser(Grammar grammar) throws LeftRecursionException {
+	public RecursiveDescentParser(Grammar grammar) throws InfiniteLeftRecursionException {
 		this.grammar = grammar;
 		detectLeftRecursions();
 	}
